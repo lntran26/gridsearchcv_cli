@@ -1,4 +1,4 @@
-# BE535 Fall 2021 Final Project
+# BE534 Fall 2021 Final Project
 
 ## Scikit-learn GridSearchCV Command Line Interface (CLI) for Multi-layer Perceptron Regressor and dadi
 
