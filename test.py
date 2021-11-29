@@ -45,24 +45,54 @@ def test_bad_file():
 
 
 # --------------------------------------------------
-def test_bad_hls():
+def test_bad_hls_comma():
     """ fails on bad hidden layer sizes specification """
 
-    bad = random_string()
-    rv, out = getstatusoutput(f'{PRG} {DATA1} -a {bad}')
+    char = ['-', '.', '/']  # cannot use ;
+    rv, out = getstatusoutput(
+        f'{PRG} {DATA1} -hls 10{random.choice(char)}10')
     assert rv != 0
-    assert re.search(f"{bad} is not a valid activation function", out)
+    assert re.search("invalid tuple_of_pos_int value:", out)
+
+
+# --------------------------------------------------
+def test_bad_hls_negative_1():
+    """ fails on bad hidden layer sizes specification """
+
+    rv, out = getstatusoutput(
+        f'{PRG} {DATA1} -hls -5')
+    assert rv != 0
+    assert re.search("invalid tuple_of_pos_int value: '-5'", out)
+
+
+# --------------------------------------------------
+def test_bad_hls_negative_2():
+    """ fails on bad hidden layer sizes specification """
+
+    rv, out = getstatusoutput(
+        f'{PRG} {DATA1} -hls 100,0')
+    assert rv != 0
+    assert re.search("invalid tuple_of_pos_int value: '100,0'", out)
+
+
+# --------------------------------------------------
+def test_bad_hls_negative_3():
+    """ fails on bad hidden layer sizes specification """
+
+    rv, out = getstatusoutput(
+        f'{PRG} {DATA1} -hls 100 -1')
+    assert rv != 0
+    assert re.search("invalid tuple_of_pos_int value: '-1'", out)
 
 
 # --------------------------------------------------
 def test_bad_activation():
     """ fails on bad activation function name """
 
-    char = ['-', '.', '/']  # cannot use ;
-    rv, out = getstatusoutput(
-        f'{PRG} {DATA1} -hls 100{random.choice(char)}100')
+    bad = random_string()
+    rv, out = getstatusoutput(f'{PRG} {DATA1} -a {bad}')
     assert rv != 0
-    assert re.search("Hidden layers must be divided by commas", out)
+    assert re.search(f"-a/--activation: invalid choice: '{bad}'", out)
 
 
 # --------------------------------------------------
@@ -72,7 +102,25 @@ def test_bad_solver():
     bad = random_string()
     rv, out = getstatusoutput(f'{PRG} {DATA2} -s {bad}')
     assert rv != 0
-    assert re.search(f"{bad} is not a valid optimizer", out)
+    assert re.search(f"-s/--solver: invalid choice: '{bad}'", out)
+
+
+# --------------------------------------------------
+def test_bad_cv_1():
+    """ fails on bad k-fold value """
+
+    rv, out = getstatusoutput(f'{PRG} {DATA1} -cv 4.5')
+    assert rv != 0
+    assert re.search("invalid int_kfold value: '4.5'", out)
+
+
+# --------------------------------------------------
+def test_bad_cv_2():
+    """ fails on bad k-fold value """
+
+    rv, out = getstatusoutput(f'{PRG} {DATA1} -cv 1')
+    assert rv != 0
+    assert re.search("-cv/--cross_val: k-fold input must be > 2", out)
 
 
 # --------------------------------------------------
