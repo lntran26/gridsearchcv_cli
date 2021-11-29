@@ -9,48 +9,33 @@ on dadi-generated data
 import argparse
 import sys
 import pickle
-import re
 import numpy as np
 from sklearn.neural_network import MLPRegressor
 from sklearn.model_selection import GridSearchCV
 
 
-def _tuple_of_int(input_str_or_list):
+def tuple_of_pos_int(input_str):
     """
-    Helper function to parse hidden layer sizes input from command line.
-    Convert comma-separated inputs from command line to tuples."""
-    try:
-        for single_tup in re.split(' ', input_str_or_list):
-            return tuple(map(int, single_tup.split(',')))
-    except Exception as error:
+    Custom type check for hidden layer sizes input from command line.
+    Convert comma-separated string input to tuples of pos int."""
+
+    single_tup_int = map(int, input_str.split(','))
+    if any(layer_size < 1 for layer_size in single_tup_int):
         raise argparse.ArgumentTypeError(
-            "Hidden layers must be divided by commas," +
-            " e.g. 'h1,h1 h2,h2,h2'") from error
+            f"invalid tuple_of_pos_int value: '{input_str}'")
+    return tuple(single_tup_int)
 
-
-def _check_legitimate_activation(activation_name):
-    if activation_name not in ['identity', 'logistic', 'tanh', 'relu']:
-        raise argparse.ArgumentTypeError(
-            f'{activation_name} is not a valid activation function')
-    return activation_name
-
-
-def _check_legitimate_solver(solver_name):
-    if solver_name not in ['lbfgs', 'sgd', 'adam']:
-        raise argparse.ArgumentTypeError(
-            f'{solver_name} is not a valid optimizer')
-    return solver_name
-
-
-def _check_legitimate_learning_rate(learning_rate):
-    if learning_rate not in ['constant', 'invscaling', 'adaptive']:
-        raise argparse.ArgumentTypeError(
-            f'{learning_rate} is not a valid learning rate')
-    return learning_rate
 
 # --------------------------------------------------
+def int_kfold(input_int):
+    """
+    Check if k-fold input is an integer > 2."""
+    if int(input_int) < 2:
+        raise argparse.ArgumentTypeError("k-fold input must be > 2")
+    return int(input_int)
 
 
+# --------------------------------------------------
 def get_args():
     """Get command-line arguments"""
 
@@ -66,8 +51,8 @@ def get_args():
     parser.add_argument('-hls',
                         '--hidden_layer_sizes',
                         nargs='*',
-                        metavar='TUPLE(S) OF INT',
-                        type=_tuple_of_int,
+                        metavar='TUPLE(S) OF POSITIVE INT',
+                        type=tuple_of_pos_int,
                         action='store',
                         dest='hidden_layer_sizes',
                         help='use commas to separate layers',
@@ -77,9 +62,9 @@ def get_args():
                         '--activation',
                         nargs='*',
                         metavar='NAME',
-                        type=_check_legitimate_activation,
                         action='store',
                         dest='activation',
+                        choices=['identity', 'logistic', 'tanh', 'relu'],
                         help='options: identity, logistic, tanh, relu',
                         default=['relu'])
 
@@ -87,9 +72,9 @@ def get_args():
                         '--solver',
                         nargs='*',
                         metavar='NAME',
-                        type=_check_legitimate_solver,
                         action='store',
                         dest='solver',
+                        choices=['lbfgs', 'sgd', 'adam'],
                         help='options: lbfgs, sgd, adam',
                         default=['adam'])
 
@@ -97,9 +82,9 @@ def get_args():
                         '--learning_rate',
                         nargs='*',
                         metavar='NAME',
-                        type=_check_legitimate_learning_rate,
                         action='store',
                         dest='learning_rate',
+                        choices=['constant', 'invscaling', 'adaptive'],
                         help='options: constant, invscaling, adaptive')
 
     parser.add_argument('-mi',
@@ -146,11 +131,12 @@ def get_args():
                         '--verbose',
                         type=int,
                         help='Level of GridsearchCV Verbose',
+                        choices=[0, 1, 2, 3, 4],
                         default=0)
 
     parser.add_argument('-cv',
                         '--cross_val',
-                        type=int,
+                        type=int_kfold,
                         help='k-fold cross validation, default None=5')
 
     parser.add_argument('-o',
