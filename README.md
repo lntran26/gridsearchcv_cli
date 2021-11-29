@@ -22,61 +22,53 @@ When run with no arguments, the program will produce a brief usage:
 
 ```
 $ ./gridsearch.py
-usage: gridsearch.py [-h] [-hls [TUPLES OF INT ...]] [-a [NAME ...]] [-s [NAME ...]] [-lr [NAME ...]]
-                     [-mi [MAX_ITER ...]] [-l2 [ALPHA ...]] [-es [BOOLEAN ...]] [-t TOL]
-                     [-n N_ITER_NO_CHANGE] [-v VERBOSE] [-cv CROSS_VAL] [-o FILE]
-                     pickle file
-gridsearch.py: error: the following arguments are required: pickle file
+usage: gridsearch.py [-h] [-hls [TUPLES OF POSITIVE INT ...]] [-a [NAME ...]] [-s [NAME ...]]
+                     [-lr [NAME ...]] [-mi [MAX_ITER ...]] [-l2 [ALPHA ...]] [-es [BOOLEAN ...]] [-t TOL]
+                     [-n N_ITER_NO_CHANGE] [-v {0,1,2,3,4}] [-cv CROSS_VAL] [-o FILE]
+                     input pickle file
+gridsearch.py: error: the following arguments are required: input pickle file
 ```
 
 When run with the `-h|--help` flag, it will produce a longer help document:
 
 ```
-$ ./gridsearch -h
-usage: gridsearch.py [-h] [-hls [TUPLES OF INT ...]] [-a [NAME ...]]
-                     [-s [NAME ...]] [-lr [NAME ...]]
-                     [-mi [MAX_ITER ...]] [-l2 [ALPHA ...]]
-                     [-es [BOOLEAN ...]] [-t TOL] [-n N_ITER_NO_CHANGE]
-                     [-v VERBOSE] [-cv CROSS_VAL] [-o FILE]
-                     pickle file
+$ ./gridsearch.py -h
+usage: gridsearch.py [-h] [-hls [TUPLES OF POSITIVE INT ...]] [-a [NAME ...]] [-s [NAME ...]]
+                     [-lr [NAME ...]] [-mi [MAX_ITER ...]] [-l2 [ALPHA ...]] [-es [BOOLEAN ...]] [-t TOL]
+                     [-n N_ITER_NO_CHANGE] [-v {0,1,2,3,4}] [-cv CROSS_VAL] [-o FILE]
+                     input pickle file
 
 Perform GridsearchCV to search for MLP hyperparameter
 
 positional arguments:
-  pickle file           Data dictionary to use for hyperparam search
+  input pickle file     Data dictionary to use for hyperparam search
 
 optional arguments:
   -h, --help            show this help message and exit
-  -hls [TUPLE(S) OF INT ...], --hidden_layer_sizes [TUPLE(S) OF INT ...]
-                        comma to separate layers, space to separate
-                        models (default: [(100,)])
+  -hls [TUPLE(S) OF POSITIVE INT ...], --hidden_layer_sizes [TUPLE(S) OF POSITIVE INT ...]
+                        use commas to separate layers (default: [(100,)])
   -a [NAME ...], --activation [NAME ...]
-                        options: identity, logistic, tanh, relu
-                        (default: ['relu'])
+                        options: identity, logistic, tanh, relu (default: ['relu'])
   -s [NAME ...], --solver [NAME ...]
                         options: lbfgs, sgd, adam (default: ['adam'])
   -lr [NAME ...], --learning_rate [NAME ...]
-                        options: constant, invscaling, adaptive
-                        (default: None)
+                        options: constant, invscaling, adaptive (default: None)
   -mi [MAX_ITER ...], --max_iter [MAX_ITER ...]
                         Maximum number of iterations (default: [500])
   -l2 [ALPHA ...], --alpha [ALPHA ...]
                         L2 penalty regularization param (default: None)
   -es [BOOLEAN ...], --early_stopping [BOOLEAN ...]
                         Whether to use early stopping (default: None)
-  -t TOL, --tol TOL     tolerance for optimization with early stopping
-                        (default: None)
+  -t TOL, --tol TOL     tolerance for optimization with early stopping (default: None)
   -n N_ITER_NO_CHANGE, --n_iter_no_change N_ITER_NO_CHANGE
-                        Max n epochs to not meet tol improvement with
-                        early stopping (default: None)
-  -v VERBOSE, --verbose VERBOSE
-                        Level of GridsearchCV Verbose (default: None)
+                        Max n epochs to not meet tol improvement (default: None)
+  -v {0,1,2,3,4}, --verbose {0,1,2,3,4}
+                        Level of GridsearchCV Verbose (default: 0)
   -cv CROSS_VAL, --cross_val CROSS_VAL
-                        k-fold cross validation, default None=5
-                        (default: None)
+                        k-fold cross validation, default None=5 (default: None)
   -o FILE, --outfile FILE
-                        Output filename (default: <_io.TextIOWrapper
-                        name='<stdout>' mode='w' encoding='utf-8'>)
+                        Output filename (default: <_io.TextIOWrapper name='<stdout>' mode='w'
+                        encoding='utf-8'>)
 ```
 
 The output from the program provides the rankings of MLPR models created from all combinations of input hyperparameter values.
@@ -214,28 +206,35 @@ $ make test
 pytest -xv --pylint --flake8 test.py gridsearch.py
 ======================================== test session starts ========================================
 ...
-collected 16 items                                                                                  
+collected 21 items                                                                                        
 --------------------------------------------------------------------------------
 Linting files
-.
+..
 --------------------------------------------------------------------------------
 
-test.py::PYLINT PASSED                                                                        [  6%]
-test.py::FLAKE8 PASSED                                                                        [ 12%]
-test.py::test_exists PASSED                                                                   [ 18%]
-test.py::test_usage PASSED                                                                    [ 25%]
-test.py::test_bad_file PASSED                                                                 [ 31%]
-test.py::test_bad_hls PASSED                                                                  [ 37%]
-test.py::test_bad_activation PASSED                                                           [ 43%]
-test.py::test_bad_solver PASSED                                                               [ 50%]
-test.py::test1 PASSED                                                                         [ 56%]
-test.py::test2 PASSED                                                                         [ 62%]
-test.py::test3 PASSED                                                                         [ 68%]
-test.py::test1_outfile PASSED                                                                 [ 75%]
-test.py::test2_outfile PASSED                                                                 [ 81%]
-test.py::test3_outfile PASSED                                                                 [ 87%]
-gridsearch.py::PYLINT SKIPPED (file(s) previously passed pylint checks)                       [ 93%]
-gridsearch.py::FLAKE8 SKIPPED (file(s) previously passed FLAKE8 checks)                       [100%]
+test.py::PYLINT PASSED                                                                              [  4%]
+test.py::FLAKE8 PASSED                                                                              [  9%]
+test.py::test_exists PASSED                                                                         [ 14%]
+test.py::test_usage PASSED                                                                          [ 19%]
+test.py::test_bad_file PASSED                                                                       [ 23%]
+test.py::test_bad_hls_comma PASSED                                                                  [ 28%]
+test.py::test_bad_hls_negative_1 PASSED                                                             [ 33%]
+test.py::test_bad_hls_negative_2 PASSED                                                             [ 38%]
+test.py::test_bad_hls_negative_3 PASSED                                                             [ 42%]
+test.py::test_bad_activation PASSED                                                                 [ 47%]
+test.py::test_bad_solver PASSED                                                                     [ 52%]
+test.py::test_bad_cv_1 PASSED                                                                       [ 57%]
+test.py::test_bad_cv_2 PASSED                                                                       [ 61%]
+test.py::test1 PASSED                                                                               [ 66%]
+test.py::test2 PASSED                                                                               [ 71%]
+test.py::test3 PASSED                                                                               [ 76%]
+test.py::test1_outfile PASSED                                                                       [ 80%]
+test.py::test2_outfile PASSED                                                                       [ 85%]
+test.py::test3_outfile PASSED                                                                       [ 90%]
+gridsearch.py::PYLINT PASSED                                                                        [ 95%]
+gridsearch.py::FLAKE8 PASSED                                                                        [100%]
+
+=========================================== 21 passed in 35.73s ===========================================                                                                       [100%]
 ```
 
 ## Author
